@@ -1,72 +1,70 @@
-# System Snapshot Checklist
+# 系统快照检查清单
 
-Use this reference when the user asks to understand an unfamiliar system or when you need a quick but reliable map before editing.
+当用户要求“先看懂系统”，或者你需要在修改前快速建立可靠认知地图时，使用这份参考。
 
-## Goal
+## 目标
 
-Produce a compact, evidence-backed snapshot of:
+产出一份紧凑且基于证据的系统快照，说明：
 
-- how the system starts
-- how requests or events flow through it
-- where state lives
-- which modules are risky to touch
-- how to verify a future change
+- 系统如何启动
+- 请求、事件或数据如何流转
+- 关键状态存放在哪里
+- 哪些模块风险最高、最不适合贸然修改
+- 后续改动应该如何验证
 
-## Read Order
+## 建议阅读顺序
 
-Inspect sources in this order unless the repo suggests a better sequence:
+除非仓库本身提示了更合理的路径，否则优先按这个顺序查看：
 
-1. `AGENTS.md`, `README*`, architecture notes, onboarding docs
-2. manifest and toolchain files such as `package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `pom.xml`
-3. app entry points such as `main.*`, `index.*`, router/bootstrap files, worker entry files
-4. build and runtime config such as `vite.config.*`, webpack config, Dockerfiles, env loaders, CI scripts
-5. core domain modules, service layers, stores, reducers, data models
-6. tests, fixtures, replay logs, seed data, and scripts that encode invariants
-7. recent commits touching the same subsystem when the current behavior is still unclear
+1. `AGENTS.md`、`README*`、架构说明、上手文档
+2. 清单和工具链文件，如 `package.json`、`pyproject.toml`、`Cargo.toml`、`go.mod`、`pom.xml`
+3. 应用入口，如 `main.*`、`index.*`、路由或启动文件、Worker 入口
+4. 构建和运行配置，如 `vite.config.*`、webpack 配置、Dockerfile、环境变量加载脚本、CI 脚本
+5. 核心领域模块、服务层、状态管理、数据模型
+6. 测试、夹具、回放日志、种子数据，以及那些实际上编码了系统不变量的脚本
+7. 当当前行为仍不清晰时，再看最近触达同一子系统的提交
 
-## What To Extract
+## 需要明确提取的信息
 
-Record these items explicitly:
+明确写出以下项目：
 
-- startup chain: what runs first, second, and third
-- ownership map: which module owns truth for each important state
-- data flow: inputs, transformations, outputs, and side effects
-- async boundaries: workers, timers, queues, subscriptions, sockets
-- persistence and IO: files, DB, cache, local storage, network APIs
-- config boundaries: environment variables, flags, profiles, mode switches
-- verification surfaces: tests, scripts, checks, logs, dashboards, replays
-- uncertainty list: places where behavior is inferred instead of directly verified
+- 启动链：第一步、第二步、第三步分别发生什么
+- 状态归属图：每个关键状态的“真相来源”由谁维护
+- 数据流：输入、转换、输出以及对应副作用
+- 异步边界：Worker、定时器、队列、订阅、Socket
+- 持久化和 IO：文件、数据库、缓存、本地存储、网络接口
+- 配置边界：环境变量、特性开关、运行 profile、模式切换
+- 验证面：测试、脚本、检查项、日志、面板、回放
+- 不确定项清单：哪些地方是推断，不是直接验证得到的
 
-## Fast Discovery Patterns
+## 快速发现模式
 
-Prefer fast text search over browsing file-by-file. Useful search targets:
+优先使用全文检索，而不是逐个文件盲读。常见搜索关键词：
 
-- `main`, `bootstrap`, `createApp`, `render`, `router`, `worker`
-- `listen`, `emit`, `dispatch`, `subscribe`, `postMessage`, `onmessage`
-- `fetch`, `axios`, `ws`, `socket`, `request`
-- `store`, `state`, `reducer`, `use*Store`, `context`
-- `config`, `env`, `featureFlag`, `mode`
-- `test`, `spec`, `fixture`, `replay`, `record`, `snapshot`
+- `main`、`bootstrap`、`createApp`、`render`、`router`、`worker`
+- `listen`、`emit`、`dispatch`、`subscribe`、`postMessage`、`onmessage`
+- `fetch`、`axios`、`ws`、`socket`、`request`
+- `store`、`state`、`reducer`、`use*Store`、`context`
+- `config`、`env`、`featureFlag`、`mode`
+- `test`、`spec`、`fixture`、`replay`、`record`、`snapshot`
 
-## Good Snapshot Output
+## 推荐快照输出形式
 
-Prefer this shape:
+### 当前状态
 
-### Current State
+- `入口路径`：系统从哪里启动，主循环从哪里开始
+- `关键模块`：真正决定行为的 3 到 7 个文件或目录
+- `数据路径`：输入怎样变成状态变化或输出
+- `高风险接缝`：并发、缓存、Worker、重试、切换、派生状态
+- `验证抓手`：改前改后最快能证明行为正确的检查项
 
-- `Entry path`: where the system boots and the main loop begins
-- `Critical modules`: the 3-7 files or directories that actually matter
-- `Data path`: how an input becomes a state change or output
-- `High-risk seams`: concurrency, caches, workers, retries, handoffs, derived state
-- `Verification hooks`: the fastest reliable checks to use before and after edits
+### 待确认项
 
-### Unknowns
+- 明确指出状态归属不清、测试薄弱、运行时假设不明确、文档和代码不一致等问题
 
-- call out missing ownership, weak tests, unclear runtime assumptions, and docs/code mismatches
+## 反模式
 
-## Anti-Patterns
-
-- Do not summarize every folder equally. Weight by execution importance.
-- Do not assume the README is current.
-- Do not treat test names as proof of behavior without reading at least the critical assertions.
-- Do not propose broad refactors before you can describe the current execution path cleanly.
+- 不要平均总结每个目录。应按执行重要性分配注意力。
+- 不要默认 README 一定是最新的。
+- 不要只看测试名就认为行为已被证明，至少要读关键断言。
+- 在没能清楚讲出当前执行路径之前，不要急着提出大范围重构。

@@ -1,74 +1,74 @@
-# Safe Change Playbook
+# 安全改动操作手册
 
-Use this reference when the user wants to modify a legacy system without breaking hidden behavior.
+当用户希望修改遗留系统、又不想破坏隐藏行为时，使用这份参考。
 
-## Pre-Edit Questions
+## 改动前必答问题
 
-Answer these before editing:
+真正编辑之前，先回答这五个问题：
 
-1. What exact behavior is changing?
-2. Which module currently owns that behavior?
-3. What contract must remain stable for callers or downstream consumers?
-4. What hidden side effects could this code trigger?
-5. What is the cheapest check that proves the change worked?
+1. 这次到底要改变什么行为？
+2. 当前由哪个模块负责这段行为？
+3. 哪些调用方或下游消费者的契约必须保持稳定？
+4. 这段代码可能触发哪些隐藏副作用？
+5. 哪个最便宜的检查能证明这次改动是对的？
 
-## Minimal Edit Strategy
+## 最小改动策略
 
-Prefer this order:
+优先按这个顺序推进：
 
-1. patch the owning module
-2. adjust nearby tests
-3. add diagnostics only where they clarify the critical path
-4. widen the refactor only if the small patch cannot preserve the contract
+1. 先修负责该行为的归属模块
+2. 再调整最近的测试
+3. 只在能帮助解释关键路径时添加诊断信息
+4. 只有当小补丁无法保住现有契约时，才扩大成重构
 
-Avoid cross-cutting cleanup during a behavior change unless it directly reduces risk.
+行为改动时，避免顺手做横向清理，除非它能直接降低本次改动风险。
 
-## White-Box Reasoning Template
+## 白盒推理模板
 
-Before or during the patch, write a short explanation covering:
+改动前或改动中，先写出一段简短说明，覆盖：
 
-- trigger: what input or event enters the system
-- path: which functions or modules handle it
-- state: what mutable state changes and who owns it
-- effects: network, storage, worker, DOM, logging, timers
-- failure modes: null states, stale caches, race windows, ordering issues, boundary conditions
+- 触发：哪个输入或事件进入系统
+- 路径：哪些函数或模块会处理它
+- 状态：哪些可变状态会变化，它们分别归谁管
+- 副作用：网络、存储、Worker、DOM、日志、定时器
+- 失败模式：空状态、陈旧缓存、竞争窗口、时序问题、边界条件
 
-If you cannot explain this path simply, keep exploring before editing.
+如果这些内容没法讲清楚，就继续探索，不要急着编辑。
 
-## Verification Ladder
+## 验证阶梯
 
-Run checks from narrow to broad:
+从窄到宽逐层验证：
 
-1. smallest reproducer or targeted test
-2. type-check, lint, or compile gate relevant to the touched files
-3. subsystem tests or replay scripts
-4. broader regression suite when the blast radius is high
+1. 最小复现或定向测试
+2. 与改动文件相关的类型检查、lint 或编译检查
+3. 子系统测试、回放脚本或工作流级验证
+4. 当爆炸半径较大时，再运行更宽的回归测试
 
-Always tell the user which rung of the ladder you actually completed.
+始终明确告诉用户：当前实际完成到了哪一层。
 
-## High-Risk Legacy Patterns
+## 遗留系统高风险模式
 
-Treat these as danger signs:
+遇到这些特征时要提高警惕：
 
-- duplicated state with weak synchronization
-- hidden global singletons
-- derived state cached in multiple places
-- timer- or worker-driven updates without clear ownership
-- "temporary" flags that now gate core behavior
-- tests that assert snapshots but not invariants
-- scripts or logs that encode behavior more accurately than docs
+- 重复状态却缺乏可靠同步
+- 隐藏的全局单例
+- 派生状态在多个地方缓存
+- 由定时器或 Worker 驱动，但状态归属不清
+- 本来“临时”的开关已经变成核心逻辑闸门
+- 测试只断言快照，不断言真正的不变量
+- 某些脚本或日志比文档更准确地描述了真实行为
 
-## Good Final Reporting
+## 推荐最终汇报结构
 
-End with:
+结尾尽量固定为：
 
-- `What changed`
-- `What stayed intentionally unchanged`
-- `What was verified`
-- `What still needs confirmation in real runtime conditions`
+- `改了什么`
+- `哪些地方是刻意不改的`
+- `验证了什么`
+- `哪些内容仍需要真实运行环境确认`
 
-## Anti-Patterns
+## 反模式
 
-- Do not silently widen scope from bugfix to refactor.
-- Do not delete "weird" code until you know which production edge case it protects.
-- Do not claim certainty where only inference exists.
+- 不要默默把 bugfix 扩大成重构。
+- 不要因为代码“看起来奇怪”就删除它，先搞清楚它在保护哪个线上边界场景。
+- 不要把推断说成已被证明的事实。

@@ -1,105 +1,105 @@
 ---
 name: old-coding-skill
-description: Understand and safely modify inherited or legacy software systems. Use when Codex needs to take over an unfamiliar codebase, reconstruct the current architecture and runtime state, identify entry points and risky modules, explain "how it works now", or prepare low-risk changes in a fragile system with incomplete docs or tests. Trigger on requests like "看懂这个系统", "梳理当前状态", "接手老项目", "先理解再修改", "分析运行链路", "定位改动点", "legacy system", "old code", or "old coding skill".
+description: 用于理解和安全修改继承来的老系统、历史项目或陌生代码库。当 Codex 需要接手一个不熟悉的仓库、重建当前架构与运行状态、识别入口与高风险模块、说明“现在到底是怎么工作的”，或在文档和测试不完整的前提下准备低风险改动时使用。适用于“看懂这个系统”“梳理当前状态”“接手老项目”“先理解再修改”“分析运行链路”“定位改动点”等请求。
 ---
 
-# 古法编程 Old Coding Skill
+# 古法编程
 
-Treat a legacy system as evidence to be reconstructed, not as a black box to guess at. Build a current-state map first, then choose the smallest safe change surface, then verify with the narrowest useful checks before expanding outward.
+把遗留系统当作需要重建证据链的对象，而不是靠猜测理解的黑盒。先建立当前状态地图，再找到最小安全改动面，最后用由窄到宽的方式验证改动是否成立。
 
-## Core Rules
+## 核心原则
 
-- Prefer primary evidence: source code, runtime logs, tests, configs, build scripts, and recent commits.
-- Reconstruct the current behavior before proposing improvements.
-- Name unknowns explicitly instead of smoothing them over with confident guesses.
-- Distinguish verified facts from inferred conclusions.
-- Prefer the smallest change that preserves existing contracts unless the user asks for a refactor.
-- Explain execution paths, ownership boundaries, and side effects before editing critical logic.
+- 优先使用一手证据：源代码、运行日志、测试、配置、构建脚本和最近相关提交。
+- 在提出优化方案之前，先重建系统当前行为。
+- 明确写出未知项，不要用看似自信的话术掩盖不确定性。
+- 区分“已验证事实”和“基于证据的推断”。
+- 除非用户明确要求重构，否则优先选择保留现有契约的最小改动。
+- 修改关键逻辑前，先说明执行路径、状态归属和副作用。
 
-## Default Workflow
+## 默认工作流
 
-### 1. Build a system snapshot
+### 1. 建立系统快照
 
-Start by identifying:
+先识别这些内容：
 
-- entry points, startup path, and primary execution loop
-- major modules and who owns state
-- external dependencies, IO boundaries, and background workers
-- configuration layers, feature flags, and environment assumptions
-- test surfaces, fixtures, logs, and replay artifacts
-- known unknowns, weakly documented areas, and high-blast-radius files
+- 入口文件、启动路径和主执行循环
+- 主要模块以及核心状态由谁负责维护
+- 外部依赖、IO 边界和后台线程或 Worker
+- 配置层、特性开关和环境假设
+- 测试面、夹具、日志和回放产物
+- 已知未知项、文档薄弱区和高爆炸半径文件
 
-For a detailed checklist, read [references/system-snapshot.md](references/system-snapshot.md).
+详细检查项见 [references/system-snapshot.md](references/system-snapshot.md)。
 
-### 2. Decide the task mode
+### 2. 判断当前任务模式
 
-Use one of these modes:
+按任务目标进入以下模式之一：
 
-- `understand-only`: produce a current-state map, risk list, and recommended next probes
-- `debug`: reproduce, isolate the failing path, identify the first bad state transition, then patch
-- `modify`: identify the smallest edit set, contracts to preserve, and verification ladder
-- `refactor`: define invariants first, then separate mechanical moves from behavioral changes
+- `只理解不改动`：输出当前状态地图、风险清单和建议的下一步探查
+- `调试定位`：复现问题、收敛失败路径、找到第一个错误状态转移，再决定补丁
+- `安全修改`：识别最小编辑面、需要保持稳定的契约以及验证阶梯
+- `受控重构`：先写清不变量，再拆分“机械调整”和“行为变化”
 
-If the user asks to modify the system before it is understood, still do a lightweight snapshot first.
+即使用户直接要求修改系统，也先做一个轻量级系统快照。
 
-### 3. Find the safe change surface
+### 3. 找到安全改动面
 
-Before editing, identify:
+动手前先确认：
 
-- the owning module for the behavior
-- upstream inputs and downstream consumers
-- state transitions that must remain valid
-- side effects: storage, network, worker messages, timers, UI events
-- guardrails: types, tests, runtime assertions, logs, KPI gates, replays
+- 这段行为当前由哪个模块负责
+- 上游输入和下游消费者分别是谁
+- 哪些状态转移必须保持有效
+- 可能触发哪些副作用：存储、网络、Worker 消息、定时器、UI 事件
+- 现有护栏在哪里：类型、测试、运行时断言、日志、门禁脚本、回放
 
-For the detailed pre-edit checklist, read [references/change-playbook.md](references/change-playbook.md).
+详细的改前检查项见 [references/change-playbook.md](references/change-playbook.md)。
 
-### 4. Change with white-box reasoning
+### 4. 以白盒方式实施修改
 
-When implementing:
+实现时遵循：
 
-- narrate the intended execution path in plain language
-- modify the minimum number of files required
-- preserve contracts unless the requested behavior explicitly changes them
-- add or update tests where they best lock the intended behavior
-- leave behind clearer evidence: tighter names, focused comments, better diagnostics, or narrower APIs
+- 先用自然语言说明预期执行路径
+- 只修改完成目标所必需的最少文件
+- 除非需求明确要求改变契约，否则保持调用方契约不变
+- 在最能锁定目标行为的位置补充或更新测试
+- 留下更清晰的证据，例如更准确的命名、更聚焦的注释、更有帮助的诊断信息或更窄的接口
 
-### 5. Verify and report honestly
+### 5. 诚实验证并汇报
 
-Run the narrowest meaningful checks first, then widen only as needed:
+优先运行最窄但有意义的检查，再按需要逐步扩大：
 
-1. targeted tests or repro steps
-2. type-check or build checks
-3. module-level or workflow-level regression tests
-4. broader suites only when the touched path is critical
+1. 定向测试或最小复现步骤
+2. 类型检查、编译检查或相关构建检查
+3. 模块级、子系统级或工作流级回归验证
+4. 只有在改动路径很关键时再跑更大范围测试
 
-Report results in this form:
+汇报时固定区分：
 
-- `Verified`: what was actually run and what it proved
-- `Inferred`: what is likely true but not directly exercised
-- `Unknown`: what still needs runtime confirmation, production data, or broader validation
+- `已验证`：实际运行了什么，它证明了什么
+- `推断结论`：大概率成立，但当前没有直接跑到的内容
+- `待确认`：仍需要真实运行环境、生产数据或更宽验证面确认的部分
 
-## Output Shape
+## 推荐输出结构
 
-When this skill is active, prefer producing these artifacts for the user:
+启用本技能时，优先给用户交付以下内容：
 
-1. `Current state`: startup path, module map, data flow, and critical files
-2. `Risk map`: fragile seams, unclear ownership, missing tests, and external dependencies
-3. `Change plan`: smallest edit surface and preserved contracts
-4. `Implementation`: the actual patch when appropriate
-5. `Verification`: exact checks run and remaining uncertainty
+1. `当前状态`：启动路径、模块地图、数据流和关键文件
+2. `风险地图`：脆弱接缝、不清晰的状态归属、缺失测试和外部依赖
+3. `改动方案`：最小改动面以及需要保持稳定的契约
+4. `实现结果`：在合适时直接给出实际补丁
+5. `验证结果`：具体运行过哪些检查，以及还剩哪些不确定性
 
-## Optional Interaction Modes
+## 可选互动模式
 
-Use these only when they help the user:
+只在确实能帮助用户时启用：
 
-- `原理反问模式`: after explaining or implementing, ask the user to restate the critical execution path or invariant in their own words
-- `白盒走读模式`: walk line by line through a critical function and explain state changes, side effects, and failure points
-- `改动预演模式`: before editing, simulate what should happen at runtime and where it could break
+- `原理反问模式`：解释或实现之后，让用户用自己的话复述关键执行路径或不变量
+- `白盒走读模式`：逐行讲解关键函数中的状态变化、副作用和潜在失败点
+- `改动预演模式`：真正编辑前先模拟运行时会发生什么，以及可能在哪些点出错
 
-## Notes
+## 注意事项
 
-- Do not confuse old code with bad code. Preserve valuable constraints that were learned the hard way.
-- Do not over-refactor just because a legacy design looks unfamiliar.
-- When documentation and code disagree, trust the code first and note the mismatch.
-- When runtime artifacts exist, use them to validate architecture claims.
+- 不要把“老代码”直接等同于“坏代码”。很多约束是线上问题反复打磨出来的。
+- 不要因为设计看起来陌生，就条件反射式地大范围重构。
+- 当文档和代码冲突时，先信代码，再明确标注不一致之处。
+- 如果存在运行时日志、录制文件或回放产物，要优先拿它们验证架构判断。

@@ -1,4 +1,4 @@
 interface:
-  display_name: "古法编程 Old Coding Skill"
-  short_description: "梳理 legacy/历史系统现状，建立修改前认知地图与安全改造路径。"
-  default_prompt: "Use this skill to understand the current state of an inherited or legacy system, map architecture and risks, and prepare safe modifications with concrete next steps."
+  display_name: "古法编程"
+  short_description: "梳理遗留系统现状，建立修改前的认知地图与安全改造路径。"
+  default_prompt: "使用这个技能来理解一个继承来的老系统或陌生代码库的当前状态，梳理架构、运行链路和风险点，并为后续的安全修改准备具体可执行的下一步。"
