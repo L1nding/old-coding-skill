@@ -1,6 +1,26 @@
-# 古法编程
+# old-coding-skill
 
 `old-coding-skill` 是一个面向 Codex 的工程协作技能，用于约束 AI 参与软件开发的方式，避免开发流程滑向 AI 黑盒协作与 vibe coding。
+
+## 安装
+
+使用 [skills.sh](https://skills.sh/) CLI 安装：
+
+```bash
+npx skills add L1nding/old-coding-skill
+```
+
+只安装该仓库中的这个 skill：
+
+```bash
+npx skills add L1nding/old-coding-skill --skill old-coding-skill
+```
+
+安装后，在支持 Agent Skills 的工具中用类似提示触发：
+
+```text
+Use old-coding-skill. 先做问题建模和方案比较，不要直接生成代码。
+```
 
 本技能强调一种明确的人机分工：
 
@@ -11,7 +31,7 @@
 
 ## 核心理念
 
-古法编程强调以下原则：
+`old-coding-skill` 强调以下原则：
 
 - 先建模，再实现
 - 先设计，再编码
@@ -37,7 +57,7 @@
 
 ## 工作流
 
-古法编程模式默认按照以下顺序推进任务：
+`old-coding-skill` 默认按照以下顺序推进任务：
 
 1. 问题建模
 2. 方案比较
@@ -78,7 +98,7 @@ old-coding-skill/
 ## 文件说明
 
 - `SKILL.md`
-  技能主定义，规定古法编程的定位、工作流、禁止行为和输出结构。
+  技能主定义，规定 `old-coding-skill` 的定位、工作流、禁止行为和输出结构。
 - `references/anti-black-box-workflow.md`
   说明如何把 AI 从黑盒产码机约束回受控的工程辅助角色。
 - `references/modes-and-prompts.md`

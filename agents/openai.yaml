@@ -1,4 +1,4 @@
 interface:
-  display_name: "古法编程"
-  short_description: "反 AI 黑盒与 vibe coding，让人主导设计，让 AI 只做受约束的工程辅助。"
-  default_prompt: "启用古法编程模式。不要把我当成代码接收者，先做问题建模、方案比较和设计决策，再进行受控实现。你需要用白盒方式解释原理、指出风险与边界，并在实现后继续反问我是否真正理解。"
+  display_name: "old-coding-skill"
+  short_description: "A design-before-code workflow for resisting black-box AI coding and keeping humans in charge of engineering decisions."
+  default_prompt: "Use old-coding-skill. Do not treat me as a code receiver. Start with problem modeling, option comparison, and design decisions before controlled implementation. Explain key logic white-box, identify risks and boundaries, and verify the result before claiming it is complete."
